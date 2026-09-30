@@ -1,0 +1,182 @@
+[gd_scene load_steps=8 format=3 uid="uid://bvy7890navig1"]
+
+[ext_resource type="Script" path="res://scripts/NavigatorController.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/MouseRaycaster.gd" id="2_ray"]
+[ext_resource type="Script" path="res://scripts/GridHighlighter.gd" id="3_high"]
+[ext_resource type="PackedScene" path="res://scenes/Unit3D.tscn" id="4_unit"]
+[ext_resource type="MeshLibrary" uid="uid://dm8x37ypalette" path="res://resources/TilePalette.tres" id="5_pal"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.18, 0.24, 0.35, 1)
+sky_horizon_color = Color(0.45, 0.52, 0.65, 1)
+ground_bottom_color = Color(0.08, 0.1, 0.15, 1)
+ground_horizon_color = Color(0.2, 0.25, 0.3, 1)
+
+[sub_resource type="Sky" id="Sky_env"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_env")
+ambient_light_source = 3
+ambient_light_color = Color(0.6, 0.65, 0.7, 1)
+tonemap_mode = 2
+
+[node name="MainNavigatorScene" type="Node3D" node_paths=PackedStringArray("raycaster", "highlighter", "active_unit", "ally_unit", "enemy_unit", "grid_map", "board_root", "lbl_unit_info", "lbl_hover_info", "lbl_action_log", "btn_reset_turn")]
+script = ExtResource("1_ctrl")
+raycaster = NodePath("MouseRaycaster")
+highlighter = NodePath("GridHighlighter")
+active_unit = NodePath("PlayerUnit")
+ally_unit = NodePath("AllyUnit")
+enemy_unit = NodePath("EnemyUnit")
+grid_map = NodePath("GridMap")
+board_root = NodePath("BoardRoot")
+lbl_unit_info = NodePath("UI/Control/PanelContainer/MarginContainer/VBoxContainer/LblUnitInfo")
+lbl_hover_info = NodePath("UI/Control/PanelContainer/MarginContainer/VBoxContainer/LblHoverInfo")
+lbl_action_log = NodePath("UI/Control/PanelContainer/MarginContainer/VBoxContainer/LblActionLog")
+btn_reset_turn = NodePath("UI/Control/PanelContainer/MarginContainer/VBoxContainer/BtnResetTurn")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 10, 20, 10)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.642788, 0.766044, 0, -0.766044, 0.642788, 10, 18, 22)
+current = true
+fov = 48.0
+
+[node name="MouseRaycaster" type="Node" parent="." node_paths=PackedStringArray("camera")]
+script = ExtResource("2_ray")
+camera = NodePath("../Camera3D")
+
+[node name="GridHighlighter" type="Node3D" parent="."]
+script = ExtResource("3_high")
+
+[node name="BoardRoot" type="Node3D" parent="."]
+
+[node name="GridMap" type="GridMap" parent="."]
+mesh_library = ExtResource("5_pal")
+cell_size = Vector3(2, 1, 2)
+data = {
+"cells": PackedInt32Array()
+}
+
+[node name="PlayerUnit" parent="." instance=ExtResource("4_unit")]
+unit_name = "Player Operative (Vanguard)"
+team_id = 1
+max_ap = 3
+
+[node name="AllyUnit" parent="." instance=ExtResource("4_unit")]
+unit_name = "Friendly Scout"
+team_id = 1
+max_ap = 3
+
+[node name="EnemyUnit" parent="." instance=ExtResource("4_unit")]
+unit_name = "Enemy Sentinel"
+team_id = 2
+max_ap = 3
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="UI/Control"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -220.0
+offset_right = 440.0
+offset_bottom = -24.0
+grow_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Control/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Control/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LblTitle" type="Label" parent="UI/Control/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "ACTION POINT ZERO: THE NAVIGATOR"
+
+[node name="LblUnitInfo" type="Label" parent="UI/Control/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Active: Vanguard Operative | AP: 3 / 3"
+
+[node name="LblHoverInfo" type="Label" parent="UI/Control/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Hover over blue tiles to preview path"
+
+[node name="LblActionLog" type="Label" parent="UI/Control/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.8, 1, 1)
+text = "Tactical Grid initialized."
+
+[node name="BtnResetTurn" type="Button" parent="UI/Control/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Reset Turn (Restore 3 AP)"
+
+[node name="LegendPanel" type="PanelContainer" parent="UI/Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -340.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 170.0
+grow_horizontal = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Control/LegendPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Control/LegendPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LblLegendTitle" type="Label" parent="UI/Control/LegendPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "GRID NAVIGATION RULES"
+
+[node name="LblRule1" type="Label" parent="UI/Control/LegendPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.7, 1, 1)
+text = "• Blue Tiles: Reachable range (1 AP/tile)"
+
+[node name="LblRule2" type="Label" parent="UI/Control/LegendPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+text = "• Yellow Trail: Calculated A* path preview"
+
+[node name="LblRule3" type="Label" parent="UI/Control/LegendPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+text = "• Red Indicator: Wall / Impassable enemy"
+
+[node name="LblRule4" type="Label" parent="UI/Control/LegendPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "• Allied units: Pass-through allowed"

@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=3 uid="uid://cx4x28h6k7m1d"]
+
+[ext_resource type="Script" path="res://scripts/UnitMovementController.gd" id="1_mov"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.4
+height = 1.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_body"]
+albedo_color = Color(0.2, 0.5, 0.9, 1)
+roughness = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_visor"]
+size = Vector3(0.5, 0.2, 0.4)
+
+[node name="Unit3D" type="Node3D" node_paths=PackedStringArray("model_mesh", "info_label")]
+script = ExtResource("1_mov")
+model_mesh = NodePath("ModelPivot")
+info_label = NodePath("InfoLabel3D")
+
+[node name="ModelPivot" type="Node3D" parent="."]
+
+[node name="BodyMesh" type="MeshInstance3D" parent="ModelPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = SubResource("StandardMaterial3D_body")
+
+[node name="VisorMesh" type="MeshInstance3D" parent="ModelPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -0.3)
+mesh = SubResource("BoxMesh_visor")
+
+[node name="InfoLabel3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+billboard = 1
+double_sided = false
+text = "Unit
+[AP: 3 / 3]"
+font_size = 32
+outline_size = 8
